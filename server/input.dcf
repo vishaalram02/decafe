@@ -1,4 +1,5 @@
-import printf;
- void main(){ 
- printf("%s", "hello");
+void main(){
+    int a = 1, b = 2;
+
+    a = ( 1 + 3) * 3;
 }
