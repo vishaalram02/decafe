@@ -96,12 +96,12 @@ def parse_cfg(lines):
 def graph():
     data = request.get_json()
     input = data.get('input')
-    type = data.get('type')
+    phase = data.get('phase')
+    opt = data.get('opt')
     with open('input.dcf', 'w') as f:
         f.write(input)
     try:
-        subprocess.run(['cp', os.environ['DECAF_PATH'], './decaf'])
-        result = subprocess.run(['./decaf', 'input.dcf', '-g', type], capture_output=True, text=True)
+        result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-g', phase, '-O', opt], capture_output=True, text=True)
         if result.returncode == 0:
             output = result.stdout
             lines = output.split('\n')
@@ -109,12 +109,8 @@ def graph():
             nodes = []
             edges = []
 
-            if type == 'cfg':
-                nodes, edges = parse_cfg(lines)
-                
-                return jsonify({'success': True, 'nodes': nodes, 'edges': edges})
-
-            return jsonify({'success': True, 'output': output})
+            nodes, edges = parse_cfg(lines)
+            return jsonify({'success': True, 'nodes': nodes, 'edges': edges})
         else:
             return jsonify({'success': True, 'output': result.stderr}), 400
         
