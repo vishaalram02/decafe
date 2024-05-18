@@ -1,24 +1,75 @@
 "use client";
 
-import React, { useState } from "react";
-import Editor from "@monaco-editor/react";
+import React, { useState, useEffect } from "react";
+import Editor, { useMonaco } from "@monaco-editor/react";
 import { ReactFlowProvider } from "@xyflow/react";
+import { Checkbox } from "@headlessui/react";
 import CFG from "./CFG";
 
-const phases = ["pre_ssa", "ssa", "post_ssa"];
+const phases = [
+  {
+    name: "pre ssa",
+    value: "pre_ssa",
+  },
+  {
+    name: "ssa",
+    value: "ssa",
+  },
+  {
+    name: "post ssa",
+    value: "post_ssa",
+  },
+];
 
-const optimizations = ["none", "cp", "cf", "dce", "all"];
+const optimizations = [
+  {
+    name: "no optimizations",
+    value: "none",
+  },
+  {
+    name: "copy propagation",
+    value: "cp",
+  },
+  {
+    name: "constant folding",
+    value: "cf",
+  },
+  {
+    name: "dead code elim",
+    value: "dce",
+  },
+  {
+    name: "common subexpr elim",
+    value: "cse",
+  },
+  {
+    name: "all optimizations",
+    value: "all",
+  },
+];
 
 export default function Home() {
   const [program, setProgram] = useState<string>("");
-  const [selectedOpt, setSelectedOpt] = useState<string[]>([]);
+  const [selectedOpt, setSelectedOpt] = useState<string[]>(["none"]);
   const [selectedPhase, setSelectedPhase] = useState<string>("ssa");
 
-  const selectOpt = (e: any) => {
-    const opt = e.target.value;
+  const monaco = useMonaco();
+
+  useEffect(() => {
+    if (monaco) {
+      fetch("/theme.json")
+        .then((res) => res.json())
+        .then((data) => {
+          monaco.editor.defineTheme("decafe", data);
+          monaco.editor.setTheme("decafe");
+        });
+    }
+  }, [monaco]);
+
+  const selectOpt = (checked: boolean, opt: string) => {
     let newOpts = [];
 
-    if (e.target.checked) {
+    if (checked) {
       if (opt === "all") {
         newOpts = ["all"];
       } else if (opt === "none") {
@@ -36,51 +87,47 @@ export default function Home() {
     if (newOpts.length === 0) {
       newOpts = ["none"];
     }
-    const optStr = newOpts.join(",");
     setSelectedOpt(newOpts);
   };
 
-  const selectPhase = (e: any) => {
-    const phase = e.target.value;
+  const selectPhase = (phase: string) => {
+    if (phase == "pre_ssa") {
+      setSelectedOpt(["none"]);
+    }
     setSelectedPhase(phase);
   };
 
   return (
     <main className="flex flex-col h-screen w-screen">
       <div className="h-full w-full flex">
-        <div className="w-2/12">
+        <div className="w-2/12 bg-primary">
           <div className="flex flex-col space-y-2 p-4">
-            {/* <button onClick={onLayout}>hi</button> */}
             <div>Select Phase:</div>
             {phases.map((ph, index) => (
-              <div key={"ph" + index}>
-                <input
-                  type="radio"
-                  id={ph}
+              <div key={"ph" + index} className="flex items-center">
+                <Checkbox
+                  id={ph.value}
                   name="phase"
-                  value={ph}
-                  onChange={selectPhase}
-                  checked={selectedPhase === ph}
-                />
-                <label htmlFor={ph} className="ml-1">
-                  {ph}
-                </label>
+                  checked={selectedPhase === ph.value}
+                  onChange={() => selectPhase(ph.value)}
+                  className="group form-checkbox p-2 h-9 w-full rounded-md bg-cafe4 data-[checked]:bg-cafe2 text-sm"
+                >
+                  {ph.name}
+                </Checkbox>
               </div>
             ))}
-            <div>Select Optimizations:</div>
+            <div className="">Select Optimizations:</div>
             {optimizations.map((opt, index) => (
-              <div key={"opt" + index}>
-                <input
-                  type="checkbox"
-                  id={opt}
+              <div key={"opt" + index} className="flex items-center">
+                <Checkbox
+                  id={opt.value}
                   name="optimization"
-                  value={opt}
-                  onChange={selectOpt}
-                  checked={selectedOpt.includes(opt)}
-                />
-                <label htmlFor={opt} className="ml-1">
-                  {opt}
-                </label>
+                  checked={selectedOpt.includes(opt.value)}
+                  onChange={(checked) => selectOpt(checked, opt.value)}
+                  className="group form-checkbox p-2 h-9 w-full rounded-md bg-cafe4 data-[checked]:bg-cafe2 text-sm"
+                >
+                  {opt.name}
+                </Checkbox>
               </div>
             ))}
           </div>

@@ -69,18 +69,18 @@ def parse_cfg(lines):
                 if words[0] == "if":
                     cur_node['instructions'].append({'text': ' '.join(words[0:-2])})
                     cur_node['end_branch'] = True
-                    edges[-1]['type'] = 'green'
+                    edges[-1]['color'] = '#4ade80'
                 elif words[0] == "goto":
                     if 'end_branch' in cur_node:
                         cur_node['instructions'].append({'text': 'else ' + ' '.join(words[0:-2])})
-                        edges[-1]['type'] = 'red'
+                        edges[-1]['color'] = '#f87171'
                     else:
                         cur_node['instructions'].append({'text': ' '.join(words[0:-2])})
-                        edges[-1]['type'] = 'blue'
+                        edges[-1]['color'] = '#60a5fa'
                 else:
                     edges[-1]['sourceHandle'] = cur_node['label'] + ':' + str(len(cur_node['instructions']))
                     cur_node['instructions'].append({'text': ' '.join(words[0:-2]), 'label': words[-1]})
-                    edges[-1]['type'] = 'blue'
+                    edges[-1]['color'] = '#60a5fa'
                    
             else:
                 cur_node['instructions'].append({'text': line})

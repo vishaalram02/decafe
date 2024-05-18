@@ -1,15 +1,15 @@
 import { useMemo, useRef, useEffect } from "react";
 import {
   ReactFlow,
-  ReactFlowProvider,
   useReactFlow,
   useNodesState,
   useEdgesState,
   useNodesInitialized,
-  addEdge,
   Controls,
   Node,
   Edge,
+  Background,
+  BackgroundVariant,
 } from "@xyflow/react";
 import Dagre from "@dagrejs/dagre";
 import BasicBlock from "./BasicBlock";
@@ -66,13 +66,13 @@ export default function CFG({
       type: "basicBlock",
     }));
 
-    const edges = output.edges.map((edge: any) => ({
-      id: edge.source + edge.target,
+    const edges = output.edges.map((edge: any, index: number) => ({
+      id: edge.source + edge.target + index,
       source: edge.source,
       target: edge.target,
       sourceHandle: edge.sourceHandle,
       targetHandle: edge.targetHandle,
-      style: { strokeWidth: 5, stroke: edge.type ?? "gray" },
+      style: { strokeWidth: 5, stroke: edge.color ?? "gray" },
     }));
 
     isLayouted.current = false;
@@ -119,6 +119,9 @@ export default function CFG({
       onEdgesChange={onEdgesChange}
       fitView
       minZoom={0.1}
+      style={{
+        backgroundColor: "#F3E9DC",
+      }}
     >
       <Controls />
     </ReactFlow>
