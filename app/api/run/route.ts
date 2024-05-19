@@ -11,14 +11,17 @@ export async function POST(request: NextRequest) {
   const opt = req.opt;
 
   let data = {};
+  const auth = btoa(
+    `${process.env.BACKEND_USERNAME}:${process.env.BACKEND_PASSWORD}`,
+  );
 
   if (target == "ir") {
     const phase = req.phase;
-    const result = await fetch("http://coffee.vishy.lol/ir", {
+    const result = await fetch(`${process.env.BACKEND_URL}/ir`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${btoa("username:password")}`,
+        Authorization: `Basic ${auth}`,
       },
 
       body: JSON.stringify({ target, input, opt, phase }),
@@ -26,11 +29,11 @@ export async function POST(request: NextRequest) {
 
     data = await result.json();
   } else if (target == "exec") {
-    const result = await fetch("http://coffee.vishy.lol/exec", {
+    const result = await fetch(`${process.env.BACKEND_URL}/exec`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${btoa("username:password")}`,
+        Authorization: `Basic ${auth}`,
       },
 
       body: JSON.stringify({ target, input, opt }),

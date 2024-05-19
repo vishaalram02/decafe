@@ -2,7 +2,7 @@
 
 .section .data
 _str_0:
-    .string "%d\n"
+    .string "%d "
 
 .section .text
 .global main

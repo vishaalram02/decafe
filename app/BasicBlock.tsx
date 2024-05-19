@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { Handle, NodeProps, Position } from "@xyflow/react";
+import { Handle, Position } from "@xyflow/react";
 
 export default function BasicBlock({
   data,
@@ -21,7 +20,7 @@ export default function BasicBlock({
                 id={data.label + ":" + index}
                 type="source"
                 position={Position.Right}
-                style={{ right: 5, top: 24 * index + 4 + 12 + 24 }}
+                style={{ right: 5, top: 24 * index + 48 }}
               />
             )}
           </div>
