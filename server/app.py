@@ -17,18 +17,30 @@ def verify(username, password):
 @auth.login_required
 def exec():
     data = request.get_json()
+    opt = data.get('opt')
     input = data.get('input')
+    result = None
+
     with open('input.dcf', 'w') as f:
         f.write(input)
     try:
-        subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-o', 'input.s'], capture_output=True, text=True)
-        subprocess.run(['gcc', '-no-pie', '-o', 'out', 'input.s'])
-        result = subprocess.run(['./out'], capture_output=True, text=True)
+        result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-o', 'input.s', '-O', opt], capture_output=True, text=True)
+        if result.returncode != 0:
+            return jsonify({'success': False, 'error': result.stderr}), 400
+        
+        result = subprocess.run(['gcc', '-no-pie', '-o', 'out', 'input.s'])
+        if result.returncode != 0:
+            return jsonify({'success': False, 'error': result.stderr}), 400
+        
+        result = subprocess.run(['timeout', '5', './out'], capture_output=True, text=True)
 
-        if result.returncode == 0:
-            return jsonify({'success': True, 'output': result.stdout})
+        if result.returncode == 124:
+            return jsonify({'success': False, 'error': 'Execution timed out'}), 400
+        elif result.returncode != 0:
+            return jsonify({'success': False, 'error': result.stderr}), 400
         else:
-            return jsonify({'success': True, 'output': result.stderr}), 400
+            return jsonify({'success': True, 'output': result.stdout})
+
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -91,17 +103,20 @@ def parse_cfg(lines):
     return nodes, edges
 
 
-@app.route('/graph', methods=['POST'])
+@app.route('/ir', methods=['POST'])
 @auth.login_required
-def graph():
+def ir():
     data = request.get_json()
     input = data.get('input')
     phase = data.get('phase')
     opt = data.get('opt')
+    result = None
+
     with open('input.dcf', 'w') as f:
         f.write(input)
     try:
         result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-g', phase, '-O', opt], capture_output=True, text=True)
+
         if result.returncode == 0:
             output = result.stdout
             lines = output.split('\n')
@@ -110,13 +125,12 @@ def graph():
             edges = []
 
             nodes, edges = parse_cfg(lines)
-            return jsonify({'success': True, 'nodes': nodes, 'edges': edges})
+            return jsonify({'success': True, 'nodes': nodes, 'edges': edges})  
         else:
-            return jsonify({'success': True, 'output': result.stderr}), 400
+            return jsonify({'success': False, 'error': result.stderr}), 400
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
 
 
 if __name__ == '__main__':

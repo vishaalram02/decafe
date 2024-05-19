@@ -7,3 +7,10 @@
     text-wrap: balance;
   }
 }
+
+@layer base {
+  @font-face {
+    font-family: mabry;
+    src: url(/MabryPro-Regular.woff) format("woff");
+  }
+}

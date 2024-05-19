@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   ReactFlow,
   useReactFlow,
@@ -8,8 +8,6 @@ import {
   Controls,
   Node,
   Edge,
-  Background,
-  BackgroundVariant,
 } from "@xyflow/react";
 import Dagre from "@dagrejs/dagre";
 import BasicBlock from "./BasicBlock";
@@ -19,44 +17,53 @@ export default function CFG({
   input,
   phase,
   opt,
+  setOutput,
 }: {
   input: string;
   phase: string;
   opt: string;
+  setOutput: (output: string) => void;
 }) {
+  const [isLayouted, setIsLayouted] = useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-  const isLayouted = useRef(false);
-
   const nodeTypes = useMemo(() => ({ basicBlock: BasicBlock }), []);
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: false });
 
   const { getNodes, getEdges, fitView } = useReactFlow();
 
   useEffect(() => {
-    if (input) genCFG(phase, opt);
-  }, [phase, opt]);
+    if (input) {
+      genCFG(phase, opt);
+    }
+  }, [input, phase, opt]);
 
   useEffect(() => {
-    if (isLayouted.current == false && nodesInitialized) {
-      isLayouted.current = true;
+    if (isLayouted == false && nodesInitialized) {
+      setIsLayouted(true);
       onLayout();
     }
   }, [nodesInitialized]);
 
+  useEffect(() => {
+    if (isLayouted) fitView();
+  }, [isLayouted]);
+
   const genCFG = async (phase: string, opt: string) => {
-    const result = await fetch("/api/graph", {
+    const result = await fetch("/api/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phase: phase, opt: opt, input }),
+      body: JSON.stringify({ target: "ir", phase: phase, opt: opt, input }),
     });
     const output = await result.json();
 
-    if (output.error) {
-      alert(output.error);
+    if (output.error !== undefined) {
+      setOutput(output.error);
       return;
+    } else {
+      setOutput("Success!");
     }
 
     const nodes = output.nodes.map((node: any, index: number) => ({
@@ -75,8 +82,7 @@ export default function CFG({
       style: { strokeWidth: 5, stroke: edge.color ?? "gray" },
     }));
 
-    isLayouted.current = false;
-
+    setIsLayouted(false);
     setNodes(nodes);
     setEdges(edges);
   };
@@ -96,8 +102,9 @@ export default function CFG({
 
     return {
       nodes: nodes.map((node) => {
-        const { x, y } = g.node(node.id);
-
+        let { x, y } = g.node(node.id);
+        x += 10000;
+        y += 10000;
         return { ...node, hidden: false, position: { x, y } };
       }),
       edges,
@@ -110,6 +117,7 @@ export default function CFG({
     setNodes([...layouted.nodes] as any);
     setEdges([...layouted.edges] as any);
   };
+
   return (
     <ReactFlow
       nodeTypes={nodeTypes}
@@ -117,7 +125,6 @@ export default function CFG({
       edges={edges}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
-      fitView
       minZoom={0.1}
       style={{
         backgroundColor: "#F3E9DC",

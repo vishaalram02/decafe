@@ -12,7 +12,7 @@ export default function BasicBlock({
         {data.label}
       </div>
       <Handle id={data.label} type="target" position={Position.Top} />
-      <div className="pl-2 pr-6 mt-1">
+      <div className="pl-2 pr-6 mt-1 text-primary">
         {data.instructions.map((instruction: any, index: number) => (
           <div className="h-6" key={index}>
             <p className="ml-4">{instruction.text}</p>

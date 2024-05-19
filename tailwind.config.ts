@@ -11,6 +11,9 @@ const config: Config = {
         cafe3: "#895737",
         cafe4: "#DAB49D",
       },
+      fontFamily: {
+        mabry: ["mabry"],
+      },
     },
   },
   plugins: [],
