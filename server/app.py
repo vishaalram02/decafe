@@ -13,6 +13,10 @@ def verify(username, password):
     if username == os.environ["USERNAME"] and password == os.environ["PASSWORD"]:
         return username
 
+@app.route('/')
+def index():
+    return 'Hello, World!'
+
 @app.route('/exec', methods=['POST'])
 @auth.login_required
 def exec():
@@ -134,4 +138,4 @@ def ir():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=os.environ['PORT'], debug=os.environ['DEBUG'] == 'True')
