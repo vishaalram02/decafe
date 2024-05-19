@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
   if (target == "ir") {
     const phase = req.phase;
-    const result = await fetch("http://localhost:5001/ir", {
+    const result = await fetch("http://coffee.vishy.lol/ir", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     data = await result.json();
   } else if (target == "exec") {
-    const result = await fetch("http://localhost:5001/exec", {
+    const result = await fetch("http://coffee.vishy.lol/exec", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

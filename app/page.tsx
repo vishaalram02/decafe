@@ -102,7 +102,7 @@ export default function Home() {
     if (output.error !== undefined) {
       setOutput(output.error);
     } else {
-      setOutput("Success!");
+      setOutput(output.output);
     }
   }
 
@@ -235,7 +235,7 @@ export default function Home() {
           <div className="h-1/6 p-2">
             <div className="w-full h-full border-4 border-cafe2 rounded-xl p-2">
               <div className="text-cafe2 text-sm">output</div>
-              <div>{"> " + output}</div>
+              <pre className="h-16 overflow-y-scroll">{output}</pre>
             </div>
           </div>
         </div>
