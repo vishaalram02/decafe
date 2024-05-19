@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import subprocess, os
+import time
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 
@@ -36,14 +37,17 @@ def exec():
         if result.returncode != 0:
             return jsonify({'success': False, 'error': result.stderr}), 400
         
+        start = time.time()
         result = subprocess.run(['timeout', '5', './out'], capture_output=True, text=True)
+        end = time.time()
+        total_time = round((end - start) * 1000, 2)
 
         if result.returncode == 124:
-            return jsonify({'success': False, 'error': 'Execution timed out'}), 400
+            return jsonify({'success': False, 'error': 'Execution timed out', 'time': total_time}), 400
         elif result.returncode != 0:
-            return jsonify({'success': False, 'error': result.stderr}), 400
+            return jsonify({'success': False, 'error': result.stderr, 'time': total_time}), 400
         else:
-            return jsonify({'success': True, 'output': result.stdout})
+            return jsonify({'success': True, 'output': result.stdout, 'time': total_time})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

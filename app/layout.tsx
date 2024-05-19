@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Decafe",
   description: "A decaf compiler IR visualizer",
+  icons: {
+    icon: "/coffee.png",
+  },
 };
 
 export default function RootLayout({

@@ -18,11 +18,13 @@ export default function CFG({
   phase,
   opt,
   setOutput,
+  setTime,
 }: {
   input: string;
   phase: string;
   opt: string;
   setOutput: (output: string) => void;
+  setTime: (time: string) => void;
 }) {
   const [isLayouted, setIsLayouted] = useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -65,6 +67,7 @@ export default function CFG({
     } else {
       setOutput("Success!");
     }
+    setTime("");
 
     const nodes = output.nodes.map((node: any, index: number) => ({
       data: { instructions: node.instructions, label: node.label },

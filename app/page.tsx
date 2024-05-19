@@ -57,6 +57,10 @@ const optimizations = [
     value: "cse",
   },
   {
+    name: "register allocation",
+    value: "regalloc",
+  },
+  {
     name: "all optimizations",
     value: "all",
   },
@@ -70,6 +74,7 @@ export default function Home() {
   const [selectedPhase, setSelectedPhase] = useState<string>("ssa");
   const [selectedProgram, setSelectedProgram] = useState<string>("fibonacci");
   const [output, setOutput] = useState<string>("");
+  const [time, setTime] = useState<string>("");
   const [running, setRunning] = useState<boolean>(false);
 
   const monaco = useMonaco();
@@ -92,10 +97,6 @@ export default function Home() {
       });
   }, [monaco]);
 
-  useEffect(() => {
-    console.log(program);
-  }, [program]);
-
   const runCode = async () => {
     setRunning(true);
     const result = await fetch("/api/run", {
@@ -114,6 +115,11 @@ export default function Home() {
     } else {
       setOutput(output.output);
     }
+
+    if (output.time !== undefined) {
+      setTime(output.time);
+    }
+
     setRunning(false);
   };
 
@@ -156,7 +162,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col h-screen w-screen font-mabry">
+    <main className="flex flex-col h-screen min-w-[1050px] overflow-x-auto font-mabry text-nowrap">
       <div className="h-12 bg-cafe2">
         <div className="flex align-center h-full text-primary text-xl">
           <div className="flex items-center space-x-2 ml-8 w-2/12">
@@ -209,7 +215,7 @@ export default function Home() {
             </button>
           </div>
           <div className="flex items-center w-6/12">
-            <div>intermediate representation:</div>
+            <div>control flow IR:</div>
           </div>
         </div>
       </div>
@@ -260,7 +266,9 @@ export default function Home() {
           </div>
           <div className="h-1/6 p-2">
             <div className="w-full h-full border-4 border-cafe2 rounded-xl p-2">
-              <div className="text-cafe2 text-sm">output</div>
+              <div className="text-cafe2 text-sm">
+                {"output" + (time !== "" ? " (" + time + " ms)" : "")}
+              </div>
               <pre className="h-16 overflow-y-scroll">{output}</pre>
             </div>
           </div>
@@ -273,6 +281,7 @@ export default function Home() {
               phase={selectedPhase}
               opt={selectedOpt.join(",")}
               setOutput={setOutput}
+              setTime={setTime}
             />
           </ReactFlowProvider>
         </div>
