@@ -4,3 +4,4 @@ venv/*
 input.dcf
 decaf
 input.s
+out

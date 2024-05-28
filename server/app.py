@@ -29,7 +29,7 @@ def exec():
     with open('input.dcf', 'w') as f:
         f.write(input)
     try:
-        result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-o', 'input.s', '-O', opt], capture_output=True, text=True)
+        result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-s', '-o', 'input.s', '-O', opt], capture_output=True, text=True)
         if result.returncode != 0:
             return jsonify({'success': False, 'error': result.stderr}), 400
         
@@ -38,16 +38,23 @@ def exec():
             return jsonify({'success': False, 'error': result.stderr}), 400
         
         start = time.time()
-        result = subprocess.run(['timeout', '5', './out'], capture_output=True, text=True)
+
+        proc = subprocess.Popen(['timeout', '5', './out'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout = proc.stdout.read(1000)
+        stderr = proc.stderr.read(1000)
+
+        proc.wait()
+        returncode = proc.returncode
+
         end = time.time()
         total_time = round((end - start) * 1000, 2)
 
-        if result.returncode == 124:
-            return jsonify({'success': False, 'error': 'Execution timed out', 'time': total_time}), 400
-        elif result.returncode != 0:
-            return jsonify({'success': False, 'error': result.stderr, 'time': total_time}), 400
+        if returncode == 124:
+            return jsonify({'success': False, 'error': 'Execution timed out (5s)', 'time': total_time}), 400
+        elif returncode != 0:
+            return jsonify({'success': False, 'error': stderr, 'time': total_time}), 400
         else:
-            return jsonify({'success': True, 'output': result.stdout, 'time': total_time})
+            return jsonify({'success': True, 'output': stdout, 'time': total_time})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -123,7 +130,7 @@ def ir():
     with open('input.dcf', 'w') as f:
         f.write(input)
     try:
-        result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-g', phase, '-O', opt], capture_output=True, text=True)
+        result = subprocess.run([os.environ['DECAF_PATH'], 'input.dcf', '-s', '-g', phase, '-O', opt], capture_output=True, text=True)
 
         if result.returncode == 0:
             output = result.stdout
