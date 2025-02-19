@@ -13,7 +13,7 @@ image = (
 
 app = App("decafe")
 
-@app.function(image=image, cpu=0.125, keep_warm=1)
+@app.function(image=image, keep_warm=1)
 @asgi_app()
 def decafe_server():
     return fastapi_app
