@@ -14,24 +14,14 @@ The compiler works on a language called decaf which is a subset of C with some a
 
 ## Setup 💻
 
-First you'll need to set up the following environment variables. First create a `.env.local` file in the root directory with the following values:
+The backend server is deployed with [Modal](https://modal.com/). You can follow the documentation to set up your environment and token. 
+First create a `.env.local` file in the root directory with the server url from the modal app:
 
 ```bash
 BACKEND_URL=
-BACKEND_USERNAME=
-BACKEND_PASSWORD=
 ```
 
-Next create a `.env` in `/server` with the following values:
-```bash
-USERNAME=
-PASSWORD=
-PORT=
-DEBUG=
-DECAF_PATH=
-```
-
-Finally, run locally:
+Finally, deploy the app and run the frontend locally:
 
 ```bash
 # Install dependencies
@@ -42,9 +32,5 @@ yarn dev
 
 cd server
 
-# Install dependencies
-pip3 install -r requirements.txt
-
-# Run backend server
-python3 app.py
+modal deploy server/app.py
 ```
