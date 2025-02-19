@@ -11,9 +11,6 @@ export async function POST(request: NextRequest) {
   const opt = req.opt;
 
   let data = {};
-  const auth = btoa(
-    `${process.env.BACKEND_USERNAME}:${process.env.BACKEND_PASSWORD}`,
-  );
 
   if (target == "ir") {
     const phase = req.phase;
@@ -21,9 +18,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${auth}`,
       },
-
       body: JSON.stringify({ target, input, opt, phase }),
     });
 
@@ -33,9 +28,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${auth}`,
       },
-
       body: JSON.stringify({ target, input, opt }),
     });
     data = await result.json();
